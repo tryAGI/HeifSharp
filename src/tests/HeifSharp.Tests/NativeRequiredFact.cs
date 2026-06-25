@@ -120,11 +120,29 @@ internal static class NativeProbe
         }
         else
         {
-            candidates.Add(Path.Combine(dir, "runtimes", "linux-arm64", "native", "libheif.so"));
-            candidates.Add(Path.Combine(dir, "runtimes", "linux-x64", "native", "libheif.so"));
+            var linuxRid = RuntimeInformation.ProcessArchitecture switch
+            {
+                Architecture.X64 => "linux-x64",
+                Architecture.Arm64 => "linux-arm64",
+                _ => null,
+            };
+
+            if (linuxRid is not null)
+            {
+                candidates.Add(Path.Combine(dir, "runtimes", linuxRid, "native", "libheif.so"));
+            }
+
             candidates.Add(Path.Combine(dir, "libheif.so"));
-            candidates.Add("/usr/lib/x86_64-linux-gnu/libheif.so.1");
-            candidates.Add("/usr/lib/aarch64-linux-gnu/libheif.so.1");
+
+            if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
+            {
+                candidates.Add("/usr/lib/x86_64-linux-gnu/libheif.so.1");
+            }
+            else if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+            {
+                candidates.Add("/usr/lib/aarch64-linux-gnu/libheif.so.1");
+            }
+
             candidates.Add("libheif.so.1");
             candidates.Add("libheif.so");
             candidates.Add("libheif");

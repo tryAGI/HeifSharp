@@ -191,16 +191,33 @@ internal static class NativeLibraryLoader
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
+            var linuxRid = RuntimeInformation.ProcessArchitecture switch
+            {
+                Architecture.X64 => "linux-x64",
+                Architecture.Arm64 => "linux-arm64",
+                _ => null,
+            };
+
+            if (linuxRid is not null)
+            {
+                paths.Add(Path.Combine(assemblyDir, "runtimes", linuxRid, "native", "libheif.so"));
+            }
+
+            paths.Add(Path.Combine(assemblyDir, "libheif.so"));
+
+            if (RuntimeInformation.ProcessArchitecture == Architecture.X64)
+            {
+                paths.Add("/usr/lib/x86_64-linux-gnu/libheif.so.1");
+                paths.Add("/lib/x86_64-linux-gnu/libheif.so.1");
+            }
+            else if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+            {
+                paths.Add("/usr/lib/aarch64-linux-gnu/libheif.so.1");
+                paths.Add("/lib/aarch64-linux-gnu/libheif.so.1");
+            }
+
             paths.AddRange(new[]
             {
-                Path.Combine(assemblyDir, "runtimes", "linux-x64", "native", "libheif.so"),
-                Path.Combine(assemblyDir, "runtimes", "linux-arm64", "native", "libheif.so"),
-                Path.Combine(assemblyDir, "libheif.so"),
-                // Common multi-arch locations (Debian/Ubuntu)
-                "/usr/lib/x86_64-linux-gnu/libheif.so.1",
-                "/usr/lib/aarch64-linux-gnu/libheif.so.1",
-                "/lib/x86_64-linux-gnu/libheif.so.1",
-                "/lib/aarch64-linux-gnu/libheif.so.1",
                 "/usr/lib/libheif.so.1",
                 "/usr/local/lib/libheif.so",
                 "libheif.so.1",

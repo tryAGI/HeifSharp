@@ -11,6 +11,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <PackageId>tryAGI.HeifSharp</PackageId>
+    <PackageVersion>1.0.1</PackageVersion>
     <PackageDescription>C# bindings for libheif (LGPL-3) with optional x265 / kvazaar HEVC plugins, producing Apple-compatible HEIC stills</PackageDescription>
     <PackageAuthors>tryAGI</PackageAuthors>
     <PackageTags>heif;heic;hevc;libheif;image;codec;encoding;apple</PackageTags>

@@ -5,7 +5,7 @@ namespace HeifSharp.Tests;
 
 public class HeifEncoderTests
 {
-    [NativeRequiredFact]
+    [HevcEncoderRequiredFact]
     public void Construct_AppleSafeDefaults_Succeeds()
     {
         using var encoder = new HeifEncoder();

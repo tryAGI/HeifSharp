@@ -1,0 +1,245 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyTitle>HeifSharp</AssemblyTitle>
+    <AssemblyDescription>C# bindings for libheif producing Apple-compatible HEIC stills</AssemblyDescription>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <PackageId>tryAGI.HeifSharp</PackageId>
+    <PackageDescription>C# bindings for libheif (LGPL-3) with optional x265 / kvazaar HEVC plugins, producing Apple-compatible HEIC stills</PackageDescription>
+    <PackageAuthors>tryAGI</PackageAuthors>
+    <PackageTags>heif;heic;hevc;libheif;image;codec;encoding;apple</PackageTags>
+    <PackageProjectUrl>https://github.com/tryAGI/HeifSharp</PackageProjectUrl>
+    <PackageLicenseExpression>MIT AND LGPL-3.0-only AND GPL-2.0-only</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/tryAGI/HeifSharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../../README.md">
+      <Pack>true</Pack>
+      <PackagePath>README.md</PackagePath>
+    </None>
+    <None Include="../../../THIRD-PARTY-NOTICES.md">
+      <Pack>true</Pack>
+      <PackagePath>THIRD-PARTY-NOTICES.md</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <!--
+    Native libraries packed into the NuGet under runtimes/{rid}/native/.
+    All entries are guarded with Exists() because binaries are produced by
+    scripts/build-natives.sh per RID and may not be
+    present on every dev machine. The wrapper still compiles without them;
+    runtime calls will throw DllNotFoundException via NativeLibraryLoader.
+
+    Per-RID files (libheif.* + libheif-plugin-x265.* + libx265.*):
+      linux-x64   linux-arm64   osx-arm64   osx-x64   win-x64
+  -->
+  <ItemGroup>
+    <!-- Linux x64 -->
+    <Content Include="../../../natives/linux/linux-x64/libheif.so" Condition="Exists('../../../natives/linux/linux-x64/libheif.so')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux-x64/native/libheif.so</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/linux/linux-x64/libheif-plugin-x265.so" Condition="Exists('../../../natives/linux/linux-x64/libheif-plugin-x265.so')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux-x64/native/libheif-plugin-x265.so</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/linux/linux-x64/libx265.so" Condition="Exists('../../../natives/linux/linux-x64/libx265.so')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux-x64/native/libx265.so</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+
+    <!-- Linux arm64 (production) -->
+    <Content Include="../../../natives/linux/linux-arm64/libheif.so" Condition="Exists('../../../natives/linux/linux-arm64/libheif.so')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux-arm64/native/libheif.so</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/linux/linux-arm64/libheif-x265.so" Condition="Exists('../../../natives/linux/linux-arm64/libheif-x265.so')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux-arm64/native/libheif-x265.so</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/linux/linux-arm64/libheif-plugin-x265.so" Condition="Exists('../../../natives/linux/linux-arm64/libheif-plugin-x265.so')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux-arm64/native/libheif-plugin-x265.so</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/linux/linux-arm64/libx265.so" Condition="Exists('../../../natives/linux/linux-arm64/libx265.so')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux-arm64/native/libx265.so</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+
+    <!-- macOS (universal arm64+x64 single dylib produced by build-natives.sh -->
+    <Content Include="../../../natives/macos/libheif.dylib" Condition="Exists('../../../natives/macos/libheif.dylib')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-arm64/native/libheif.dylib</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/macos/libheif.dylib" Condition="Exists('../../../natives/macos/libheif.dylib')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-x64/native/libheif.dylib</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <!-- libheif.1.dylib alias: the x265 plugin links against the version-suffixed
+         soname; ship both so dyld can resolve regardless of which one the plugin's
+         install_name_tool fixup landed on. -->
+    <Content Include="../../../natives/macos/libheif.1.dylib" Condition="Exists('../../../natives/macos/libheif.1.dylib')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-arm64/native/libheif.1.dylib</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/macos/libheif.1.dylib" Condition="Exists('../../../natives/macos/libheif.1.dylib')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-x64/native/libheif.1.dylib</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/macos/libheif-plugin-x265.dylib" Condition="Exists('../../../natives/macos/libheif-plugin-x265.dylib')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-arm64/native/libheif-plugin-x265.dylib</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/macos/libheif-plugin-x265.dylib" Condition="Exists('../../../natives/macos/libheif-plugin-x265.dylib')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-x64/native/libheif-plugin-x265.dylib</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <!-- libheif-x265.so: upstream-convention plugin filename. libheif's directory
+         scan matches this exact pattern. We ship it as an alias of the .dylib so
+         heif_load_plugins(dir) picks it up. -->
+    <Content Include="../../../natives/macos/libheif-x265.so" Condition="Exists('../../../natives/macos/libheif-x265.so')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-arm64/native/libheif-x265.so</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/macos/libheif-x265.so" Condition="Exists('../../../natives/macos/libheif-x265.so')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-x64/native/libheif-x265.so</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/macos/libx265.dylib" Condition="Exists('../../../natives/macos/libx265.dylib')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-arm64/native/libx265.dylib</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/macos/libx265.dylib" Condition="Exists('../../../natives/macos/libx265.dylib')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/osx-x64/native/libx265.dylib</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+
+    <!-- Windows x64 -->
+    <Content Include="../../../natives/windows/heif.dll" Condition="Exists('../../../natives/windows/heif.dll')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win-x64/native/heif.dll</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/windows/heif-plugin-x265.dll" Condition="Exists('../../../natives/windows/heif-plugin-x265.dll')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win-x64/native/heif-plugin-x265.dll</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/windows/x265.dll" Condition="Exists('../../../natives/windows/x265.dll')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win-x64/native/x265.dll</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- Project-reference output mirroring (so consumers picking us up via P2P, not NuGet, also get binaries) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <None Include="../../../natives/linux/linux-x64/libheif.so" Condition="Exists('../../../natives/linux/linux-x64/libheif.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/linux-x64/native/libheif.so</Link>
+    </None>
+    <None Include="../../../natives/linux/linux-x64/libheif-plugin-x265.so" Condition="Exists('../../../natives/linux/linux-x64/libheif-plugin-x265.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/linux-x64/native/libheif-plugin-x265.so</Link>
+    </None>
+    <None Include="../../../natives/linux/linux-x64/libx265.so" Condition="Exists('../../../natives/linux/linux-x64/libx265.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/linux-x64/native/libx265.so</Link>
+    </None>
+
+    <None Include="../../../natives/linux/linux-arm64/libheif.so" Condition="Exists('../../../natives/linux/linux-arm64/libheif.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/linux-arm64/native/libheif.so</Link>
+    </None>
+    <None Include="../../../natives/linux/linux-arm64/libheif-x265.so" Condition="Exists('../../../natives/linux/linux-arm64/libheif-x265.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/linux-arm64/native/libheif-x265.so</Link>
+    </None>
+    <None Include="../../../natives/linux/linux-arm64/libheif-plugin-x265.so" Condition="Exists('../../../natives/linux/linux-arm64/libheif-plugin-x265.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/linux-arm64/native/libheif-plugin-x265.so</Link>
+    </None>
+    <None Include="../../../natives/linux/linux-arm64/libx265.so" Condition="Exists('../../../natives/linux/linux-arm64/libx265.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/linux-arm64/native/libx265.so</Link>
+    </None>
+
+    <None Include="../../../natives/macos/libheif.dylib" Condition="Exists('../../../natives/macos/libheif.dylib')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/osx-arm64/native/libheif.dylib</Link>
+    </None>
+    <None Include="../../../natives/macos/libheif.1.dylib" Condition="Exists('../../../natives/macos/libheif.1.dylib')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/osx-arm64/native/libheif.1.dylib</Link>
+    </None>
+    <None Include="../../../natives/macos/libheif-plugin-x265.dylib" Condition="Exists('../../../natives/macos/libheif-plugin-x265.dylib')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/osx-arm64/native/libheif-plugin-x265.dylib</Link>
+    </None>
+    <None Include="../../../natives/macos/libheif-x265.so" Condition="Exists('../../../natives/macos/libheif-x265.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/osx-arm64/native/libheif-x265.so</Link>
+    </None>
+    <None Include="../../../natives/macos/libx265.dylib" Condition="Exists('../../../natives/macos/libx265.dylib')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/osx-arm64/native/libx265.dylib</Link>
+    </None>
+
+    <None Include="../../../natives/windows/heif.dll" Condition="Exists('../../../natives/windows/heif.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/win-x64/native/heif.dll</Link>
+    </None>
+    <None Include="../../../natives/windows/heif-plugin-x265.dll" Condition="Exists('../../../natives/windows/heif-plugin-x265.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/win-x64/native/heif-plugin-x265.dll</Link>
+    </None>
+    <None Include="../../../natives/windows/x265.dll" Condition="Exists('../../../natives/windows/x265.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/win-x64/native/x265.dll</Link>
+    </None>
+  </ItemGroup>
+
+</Project>

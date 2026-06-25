@@ -1,0 +1,62 @@
+# Reproducible build environment for HeifSharp's vendored libheif/x265/plugin
+# binaries. Pinned to debian:bookworm-slim because the production .NET runtime
+# image (mcr.microsoft.com/dotnet/aspnet:10.0) is also Debian bookworm — building
+# against a newer glibc (e.g. trixie) would risk "GLIBC_2.41 not found" at
+# container runtime. Keep this base in sync with production whenever the .NET
+# runtime base changes.
+#
+# Usage:
+#   # Build for the matching architecture of your host (or use --platform):
+#   docker build -f Dockerfile.build-natives \
+#     --platform linux/arm64 \
+#     --target export \
+#     --output type=local,dest=natives/linux/linux-arm64 \
+#     .
+#
+#   # Or interactively:
+#   docker run --rm --platform linux/arm64 \
+#     -v "$(pwd):/repo" -w /repo \
+#     $(docker build -q -f Dockerfile.build-natives --target tools .) \
+#     scripts/build-natives.sh linux-arm64
+#
+# RID is auto-detected from the build platform: linux/arm64 -> linux-arm64,
+# linux/amd64 -> linux-x64.
+
+FROM debian:bookworm-slim AS tools
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -qq \
+ && apt-get install -y -qq --no-install-recommends \
+        ca-certificates \
+        build-essential \
+        cmake \
+        curl \
+        git \
+        nasm \
+        pkg-config \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /repo
+
+# ---------------------------------------------------------------------------
+# `build` stage: runs the build script. We deliberately COPY only the script
+# itself (not the whole repo) — the script self-fetches all upstream sources.
+# A blanket `COPY . /repo` would pull in third_party/, *.dmp test artifacts,
+# and other multi-GB junk that exhausts Docker Desktop's VM disk.
+# ---------------------------------------------------------------------------
+FROM tools AS build
+COPY scripts/ /repo/scripts/
+RUN chmod +x /repo/scripts/build-natives.sh \
+ && case "$(uname -m)" in \
+        aarch64) RID=linux-arm64 ;; \
+        x86_64)  RID=linux-x64 ;; \
+        *) echo "Unsupported arch: $(uname -m)"; exit 1 ;; \
+    esac \
+ && /repo/scripts/build-natives.sh "$RID"
+
+# ---------------------------------------------------------------------------
+# `export` stage: contains only the produced natives, ready to be extracted via
+# `docker build --output type=local,dest=…`.
+# ---------------------------------------------------------------------------
+FROM scratch AS export
+COPY --from=build /repo/natives /

@@ -1,0 +1,6 @@
+*.dll binary
+*.dylib binary
+*.so binary
+*.png binary
+*.snk binary
+

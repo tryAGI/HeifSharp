@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/libs/HeifSharp/HeifSharp.csproj" />
+  <Project Path="src/tests/HeifSharp.Tests/HeifSharp.Tests.csproj" />
+</Solution>

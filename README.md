@@ -14,10 +14,10 @@ The NuGet package id is `tryAGI.HeifSharp`. The public namespace remains
 dotnet add package tryAGI.HeifSharp
 ```
 
-The repository currently commits native assets for `linux-arm64`, `osx-arm64`,
-and `osx-x64`. The project file already has conditional package entries for
-`linux-x64` and `win-x64`; build and commit those binaries with
-`scripts/build-natives.sh` before relying on those RIDs.
+The repository commits native assets for `linux-x64`, `linux-arm64`,
+`osx-arm64`, `osx-x64`, and `win-x64`. They are packed under
+`runtimes/<rid>/native/` so package consumers get the matching libheif/x265
+binary set automatically.
 
 ## Why
 
@@ -56,7 +56,14 @@ scripts/build-natives.sh osx-arm64
 docker build -f Dockerfile.build-natives \
   --platform linux/arm64 \
   --target export \
-  --output type=local,dest=natives/linux/linux-arm64 \
+  --output type=local,dest=natives \
+  .
+
+# Linux x64
+docker build -f Dockerfile.build-natives \
+  --platform linux/amd64 \
+  --target export \
+  --output type=local,dest=natives \
   .
 
 # Or run the script directly inside the same image (slower for one-off use):
@@ -65,11 +72,20 @@ docker run --rm --platform linux/arm64 -v "$(pwd):/repo" -w /repo debian:bookwor
     cmake build-essential git nasm pkg-config curl ca-certificates >/dev/null
   scripts/build-natives.sh linux-arm64
 '
+
+# Windows x64 cross-build from Debian/MinGW
+docker run --rm --platform linux/arm64 -v "$(pwd):/repo" -w /repo debian:bookworm-slim bash -c '
+  apt-get update -qq && apt-get install -y -qq --no-install-recommends \
+    ca-certificates build-essential cmake curl git nasm pkg-config \
+    gcc-mingw-w64-x86-64-posix g++-mingw-w64-x86-64-posix binutils-mingw-w64-x86-64 >/dev/null
+  scripts/build-natives.sh win-x64
+'
 ```
 
 Outputs are committed under `natives/{macos,linux/<rid>,windows}/`
-and packed into the NuGet under `runtimes/<rid>/native/`. Expect ~6–10 MB per RID
-combined for libheif + libx265 + plugin.
+and packed into the NuGet under `runtimes/<rid>/native/`. Expect ~6–10 MB per
+Linux/macOS RID for libheif + libx265 + plugin; `win-x64` is larger because it
+also carries the MinGW runtime DLLs needed by the cross-built binaries.
 
 **Why `debian:bookworm-slim`?** Production runs on `mcr.microsoft.com/dotnet/aspnet:10.0`,
 which is Debian bookworm. Building against a newer base (e.g. trixie) risks

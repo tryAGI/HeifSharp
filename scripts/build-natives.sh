@@ -41,13 +41,13 @@ RID="$1"
 # Pinned versions — keep in sync with VERSIONS.md.
 LIBHEIF_VERSION="1.21.2"
 LIBHEIF_SHA256="75f530b7154bc93e7ecf846edfc0416bf5f490612de8c45983c36385aa742b42"
-# x265: pin a master commit SHA via X265_GIT_REF. Empty = current master HEAD.
+# x265: pinned master commit SHA; override via X265_GIT_REF when bumping.
 # We use git here (instead of a release tarball) because the most recent x265 release
 # (4.1) does not compile against Xcode 21's clang on Apple Silicon — the NEON-intrinsic
 # include path was fixed only on master. Pin the SHA in VERSIONS.md after a successful
 # build so future runs are reproducible.
 X265_GIT_URL="${X265_GIT_URL:-https://bitbucket.org/multicoreware/x265_git.git}"
-X265_GIT_REF="${X265_GIT_REF:-master}"
+X265_GIT_REF="${X265_GIT_REF:-b81f650e21e8aacbe6a9ad04ce14aefc05b932c0}"
 KVAZAAR_VERSION="2.3.1"
 
 WITH_X265="${WITH_X265:-ON}"
@@ -59,6 +59,43 @@ ROOT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 NATIVES_DIR="$ROOT_DIR/natives"
 WORK_DIR="$ROOT_DIR/.build/$RID"
 PREFIX="$WORK_DIR/install"
+CMAKE_SYSTEM_ARGS=()
+
+if [[ "$RID" == "win-x64" && "$(uname -s)" != MINGW* && "$(uname -s)" != MSYS* ]]; then
+  if [[ -z "${CC:-}" ]]; then
+    if command -v x86_64-w64-mingw32-gcc-posix >/dev/null; then
+      CC=x86_64-w64-mingw32-gcc-posix
+    else
+      CC=x86_64-w64-mingw32-gcc
+    fi
+  fi
+  if [[ -z "${CXX:-}" ]]; then
+    if command -v x86_64-w64-mingw32-g++-posix >/dev/null; then
+      CXX=x86_64-w64-mingw32-g++-posix
+    else
+      CXX=x86_64-w64-mingw32-g++
+    fi
+  fi
+  : "${RC:=x86_64-w64-mingw32-windres}"
+
+  command -v "$CC" >/dev/null || { echo "Missing $CC for win-x64 cross-build" >&2; exit 69; }
+  command -v "$CXX" >/dev/null || { echo "Missing $CXX for win-x64 cross-build" >&2; exit 69; }
+  command -v "$RC" >/dev/null || { echo "Missing $RC for win-x64 cross-build" >&2; exit 69; }
+
+  MINGW_SYSROOT="$("$CC" -print-sysroot)"
+  CMAKE_SYSTEM_ARGS=(
+    -DCMAKE_SYSTEM_NAME=Windows
+    -DCMAKE_SYSTEM_PROCESSOR=x86_64
+    -DCMAKE_C_COMPILER="$CC"
+    -DCMAKE_CXX_COMPILER="$CXX"
+    -DCMAKE_RC_COMPILER="$RC"
+    -DCMAKE_FIND_ROOT_PATH="$MINGW_SYSROOT"
+    -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER
+    -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY
+    -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
+    -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY
+  )
+fi
 
 echo "==> Building HeifSharp natives for $RID"
 echo "    libheif=$LIBHEIF_VERSION   x265=git:$X265_GIT_REF (enabled=$WITH_X265)   kvazaar=$KVAZAAR_VERSION (enabled=$WITH_KVAZAAR)"
@@ -107,6 +144,7 @@ if [[ "$WITH_X265" == "ON" ]]; then
     git clone --depth 1 --branch "$X265_GIT_REF" "$X265_GIT_URL" "$X265_REPO" || \
       git clone "$X265_GIT_URL" "$X265_REPO"
   fi
+  git config --global --add safe.directory "$X265_REPO" >/dev/null 2>&1 || true
   (cd "$X265_REPO" && git fetch --depth 1 origin "$X265_GIT_REF" >/dev/null 2>&1 || true)
   (cd "$X265_REPO" && git checkout "$X265_GIT_REF" >/dev/null 2>&1 || true)
   X265_HEAD_SHA=$(cd "$X265_REPO" && git rev-parse HEAD)
@@ -126,6 +164,23 @@ if [[ "$WITH_X265" == "ON" ]]; then
     }
     sed_inplace -E 's/cmake_policy\(SET (CMP0025|CMP0054) OLD\)/cmake_policy(SET \1 NEW)/g' "$X265_SRC/CMakeLists.txt"
     sed_inplace -E 's/cmake_minimum_required *\( *VERSION *[0-9]+\.[0-9]+(\.[0-9]+)? *\)/cmake_minimum_required(VERSION 3.13)/' "$X265_SRC/CMakeLists.txt"
+    if grep -q 'list(GET VERSION_LIST 0 X265_VERSION_MAJOR)' "$X265_SRC/CMakeLists.txt" &&
+       ! grep -q 'X265_VERSION_LIST_LENGTH' "$X265_SRC/CMakeLists.txt"; then
+      sed_inplace '/list(GET VERSION_LIST 0 X265_VERSION_MAJOR)/i\
+list(LENGTH VERSION_LIST X265_VERSION_LIST_LENGTH)\
+if(X265_VERSION_LIST_LENGTH LESS 2)\
+    set(VERSION_LIST 0 0)\
+endif()
+' "$X265_SRC/CMakeLists.txt"
+    fi
+    if grep -q 'set(X265_BRANCH_ID 0)' "$X265_SRC/CMakeLists.txt" &&
+       ! grep -q 'X265_TAG_DISTANCE.*MATCHES' "$X265_SRC/CMakeLists.txt"; then
+      sed_inplace '/set(X265_BRANCH_ID 0)/i\
+if(NOT "${X265_TAG_DISTANCE}" MATCHES "^[0-9]+$")\
+    set(X265_TAG_DISTANCE 0)\
+endif()
+' "$X265_SRC/CMakeLists.txt"
+    fi
   fi
   # CMAKE_POSITION_INDEPENDENT_CODE=ON is required on Linux: libheif's plugin is a
   # shared object that statically links libx265 (cmake --install on x265 only ships
@@ -133,6 +188,7 @@ if [[ "$WITH_X265" == "ON" ]]; then
   # relocation" on aarch64 and refuses to produce libheif-x265.so. macOS is more
   # tolerant but the flag is harmless there.
   cmake -S "$X265_SRC" -B "$X265_BUILD" \
+    "${CMAKE_SYSTEM_ARGS[@]}" \
     -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
@@ -144,13 +200,20 @@ if [[ "$WITH_X265" == "ON" ]]; then
   # library from the build dir so libheif's find_package picks it up at link time.
   case "$RID" in
     osx-*)
-      X265_SHLIB="$( ls "$X265_BUILD"/libx265.*.dylib 2>/dev/null | head -1 || true )"
+      X265_SHLIB="$( ls "$X265_BUILD"/libx265.*.dylib 2>/dev/null | sed -n '1p' || true )"
       [[ -n "$X265_SHLIB" && -f "$X265_SHLIB" ]] && cp -L "$X265_SHLIB" "$PREFIX/lib/libx265.dylib"
       ;;
     linux-*)
-      X265_SHLIB="$( ls "$X265_BUILD"/libx265.so* 2>/dev/null | grep -v '\.so$' | head -1 || true )"
+      X265_SHLIB="$( ls "$X265_BUILD"/libx265.so* 2>/dev/null | grep -v '\.so$' | sed -n '1p' || true )"
       [[ -z "$X265_SHLIB" ]] && X265_SHLIB="$X265_BUILD/libx265.so"
       [[ -f "$X265_SHLIB" ]] && cp -L "$X265_SHLIB" "$PREFIX/lib/libx265.so" || true
+      ;;
+    win-x64)
+      X265_DLL="$( ls "$X265_BUILD"/*x265*.dll 2>/dev/null | sed -n '1p' || true )"
+      if [[ -n "$X265_DLL" && -f "$X265_DLL" ]]; then
+        mkdir -p "$PREFIX/bin"
+        cp -L "$X265_DLL" "$PREFIX/bin/x265.dll"
+      fi
       ;;
   esac
 fi
@@ -164,6 +227,7 @@ if [[ "$WITH_KVAZAAR" == "ON" ]]; then
   KV_SRC="$WORK_DIR/kvazaar-${KVAZAAR_VERSION}"
   KV_BUILD="$WORK_DIR/kvazaar-build"
   cmake -S "$KV_SRC" -B "$KV_BUILD" \
+    "${CMAKE_SYSTEM_ARGS[@]}" \
     -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
@@ -184,6 +248,7 @@ LH_BUILD="$WORK_DIR/libheif-build"
 # We deliberately disable AOM/dav1d/rav1e/jpeg2000/svt to keep the AVIF/AV1 surface and
 # unrelated codec deps out of our binaries. Only HEVC encoders are pulled in.
 cmake -S "$LH_SRC" -B "$LH_BUILD" \
+  "${CMAKE_SYSTEM_ARGS[@]}" \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX="$PREFIX" \
   -DCMAKE_PREFIX_PATH="$PREFIX" \
@@ -215,7 +280,7 @@ case "$RID" in
     if [[ "$WITH_X265" == "ON" ]]; then
       # x265's cmake install only ships .a on macOS even with ENABLE_SHARED=ON;
       # grab the .dylib from the build dir directly, then normalize the name.
-      X265_DYLIB="$( ls "$WORK_DIR"/x265-build/libx265.*.dylib 2>/dev/null | head -1 || true )"
+      X265_DYLIB="$( ls "$WORK_DIR"/x265-build/libx265.*.dylib 2>/dev/null | sed -n '1p' || true )"
       if [[ -z "$X265_DYLIB" ]]; then
         X265_DYLIB="$PREFIX/lib/libx265.dylib"
       fi
@@ -223,7 +288,7 @@ case "$RID" in
       # libheif on macOS installs its plugin as `libheif-<encoder>.so` (extension
       # follows libheif's CMake convention even on Mach-O). Rename to a .dylib with
       # the explicit "plugin" prefix our packaging expects.
-      PLUGIN_SRC="$( ls "$PREFIX"/lib/libheif/libheif-x265.* 2>/dev/null | head -1 || true )"
+      PLUGIN_SRC="$( ls "$PREFIX"/lib/libheif/libheif-x265.* 2>/dev/null | sed -n '1p' || true )"
       if [[ -n "$PLUGIN_SRC" && -f "$PLUGIN_SRC" ]]; then
         cp -L "$PLUGIN_SRC" "$OUT_DIR/libheif-plugin-x265.dylib"
       fi
@@ -267,9 +332,9 @@ case "$RID" in
       [[ -f "$PREFIX/lib/libx265.so" ]] && cp -L "$PREFIX/lib/libx265.so" "$OUT_DIR/libx265.so"
       # libheif's plugin install path is $PREFIX/lib/libheif/ and the file is named
       # `libheif-<encoder>.so` (no "plugin" infix). Match either naming for safety.
-      PLUGIN_SRC="$( ls "$PREFIX"/lib/libheif/libheif-x265.* 2>/dev/null | head -1 || true )"
+      PLUGIN_SRC="$( ls "$PREFIX"/lib/libheif/libheif-x265.* 2>/dev/null | sed -n '1p' || true )"
       if [[ -z "$PLUGIN_SRC" ]]; then
-        PLUGIN_SRC="$( ls "$PREFIX"/lib/libheif-plugin-x265.so 2>/dev/null | head -1 || true )"
+        PLUGIN_SRC="$( ls "$PREFIX"/lib/libheif-plugin-x265.so 2>/dev/null | sed -n '1p' || true )"
       fi
       if [[ -n "$PLUGIN_SRC" && -f "$PLUGIN_SRC" ]]; then
         # Use upstream-convention name `libheif-x265.so` so libheif's directory
@@ -284,11 +349,84 @@ case "$RID" in
   win-x64)
     OUT_DIR="$NATIVES_DIR/windows"
     mkdir -p "$OUT_DIR"
-    cp -L "$PREFIX/bin/heif.dll"                 "$OUT_DIR/heif.dll"
-    [[ "$WITH_X265" == "ON" ]] && cp -L "$PREFIX/bin/x265.dll" "$OUT_DIR/x265.dll" 2>/dev/null \
-       || cp -L "$PREFIX/bin/libx265.dll" "$OUT_DIR/x265.dll"
-    [[ "$WITH_X265" == "ON" ]] && cp -L "$PREFIX/bin/heif-plugin-x265.dll" "$OUT_DIR/heif-plugin-x265.dll" 2>/dev/null \
-       || cp -L "$PREFIX/bin/libheif-plugin-x265.dll" "$OUT_DIR/heif-plugin-x265.dll"
+    copy_first() {
+      local dest="$1"
+      shift
+      local src
+      for src in "$@"; do
+        if [[ -f "$src" ]]; then
+          cp -L "$src" "$dest"
+          return 0
+        fi
+      done
+      echo "Missing output for $dest; tried: $*" >&2
+      return 1
+    }
+
+    copy_first "$OUT_DIR/libheif.dll" \
+      "$PREFIX/bin/libheif.dll" \
+      "$PREFIX/bin/heif.dll" \
+      "$PREFIX/bin/libheif-1.dll"
+    cp -L "$OUT_DIR/libheif.dll" "$OUT_DIR/heif.dll"
+
+    if [[ "$WITH_X265" == "ON" ]]; then
+      copy_first "$OUT_DIR/x265.dll" \
+        "$PREFIX/bin/x265.dll" \
+        "$PREFIX/bin/libx265.dll"
+
+      PLUGIN_SRC="$( ls "$PREFIX"/bin/*heif*x265*.dll "$PREFIX"/lib/libheif/*heif*x265*.dll 2>/dev/null | sed -n '1p' || true )"
+      if [[ -z "$PLUGIN_SRC" ]]; then
+        echo "Missing x265 plugin DLL under $PREFIX" >&2
+        exit 1
+      fi
+      cp -L "$PLUGIN_SRC" "$OUT_DIR/heif-plugin-x265.dll"
+    fi
+
+    copy_runtime_dll() {
+      local name="$1"
+      local tool="$2"
+      local src
+      src="$("$tool" "-print-file-name=$name" 2>/dev/null || true)"
+      if [[ "$src" == "$name" ]]; then
+        src=""
+      fi
+      if [[ -n "$src" && -f "$src" ]]; then
+        cp -L "$src" "$OUT_DIR/$name"
+        return 0
+      fi
+
+      local tool_path
+      tool_path="$(command -v "$tool" 2>/dev/null || true)"
+      local search_dirs=()
+      if [[ -n "$tool_path" ]]; then
+        search_dirs+=("$(dirname "$tool_path")")
+      fi
+      if [[ -n "${MINGW_SYSROOT:-}" ]]; then
+        search_dirs+=("$MINGW_SYSROOT/bin" "$MINGW_SYSROOT/lib")
+      fi
+
+      local libgcc_path
+      libgcc_path="$("$tool" -print-libgcc-file-name 2>/dev/null || true)"
+      if [[ -n "$libgcc_path" && -f "$libgcc_path" ]]; then
+        search_dirs+=("$(dirname "$libgcc_path")")
+      fi
+
+      search_dirs+=("/usr/x86_64-w64-mingw32/bin" "/usr/x86_64-w64-mingw32/lib")
+      local dir
+      for dir in "${search_dirs[@]}"; do
+        if [[ -f "$dir/$name" ]]; then
+          cp -L "$dir/$name" "$OUT_DIR/$name"
+          return 0
+        fi
+      done
+
+      echo "WARN: could not find MinGW runtime DLL $name; Windows binaries may need it" >&2
+      return 0
+    }
+
+    copy_runtime_dll "libgcc_s_seh-1.dll" "$CC"
+    copy_runtime_dll "libstdc++-6.dll" "$CXX"
+    copy_runtime_dll "libwinpthread-1.dll" "$CC"
     ;;
   *)
     echo "Unsupported RID: $RID" >&2

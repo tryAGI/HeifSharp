@@ -11,8 +11,17 @@ LGPL-3.0. Source and license details are documented in `scripts/VERSIONS.md`.
 ## x265
 
 Bundled x265 binaries and the `libheif-plugin-x265` plugin are built from x265
-git commit `7b3d1f515318f73056abd9e99944e9f79db090bd` and are GPL-2.0. libheif
+git commit `b81f650e21e8aacbe6a9ad04ce14aefc05b932c0` and are GPL-2.0. libheif
 loads the encoder plugin at runtime through its plugin API.
+
+## MinGW-w64 runtime DLLs
+
+Windows x64 native binaries bundle `libgcc_s_seh-1.dll`, `libstdc++-6.dll`, and
+`libwinpthread-1.dll` from Debian bookworm's MinGW-w64 POSIX runtime packages so
+the `win-x64` RID is self-contained. `libgcc` and `libstdc++` are distributed
+under GPL-3.0-or-later with the GCC Runtime Library Exception; `libwinpthread`
+is distributed as part of the MinGW-w64 runtime. Source and package details are
+documented in `scripts/VERSIONS.md`.
 
 ## kvazaar
 

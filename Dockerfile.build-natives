@@ -10,7 +10,7 @@
 #   docker build -f Dockerfile.build-natives \
 #     --platform linux/arm64 \
 #     --target export \
-#     --output type=local,dest=natives/linux/linux-arm64 \
+#     --output type=local,dest=natives \
 #     .
 #
 #   # Or interactively:

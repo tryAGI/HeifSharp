@@ -100,6 +100,8 @@ internal static class NativeLibraryLoader
         {
             "libx265.so",
             "libx265.dylib",
+            "x265.dll",
+            "libx265.dll",
             "libde265.so",
             "libde265.dylib",
             "libaom.so",
@@ -163,12 +165,12 @@ internal static class NativeLibraryLoader
         {
             paths.AddRange(new[]
             {
-                Path.Combine(assemblyDir, "heif.dll"),
                 Path.Combine(assemblyDir, "libheif.dll"),
-                Path.Combine(assemblyDir, "runtimes", "win-x64", "native", "heif.dll"),
+                Path.Combine(assemblyDir, "heif.dll"),
                 Path.Combine(assemblyDir, "runtimes", "win-x64", "native", "libheif.dll"),
-                "heif.dll",
+                Path.Combine(assemblyDir, "runtimes", "win-x64", "native", "heif.dll"),
                 "libheif.dll",
+                "heif.dll",
             });
         }
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))

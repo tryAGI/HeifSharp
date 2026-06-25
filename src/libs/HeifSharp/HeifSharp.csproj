@@ -11,12 +11,13 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <PackageId>tryAGI.HeifSharp</PackageId>
-    <PackageVersion>1.0.1</PackageVersion>
+    <PackageVersion>1.0.2</PackageVersion>
     <PackageDescription>C# bindings for libheif (LGPL-3) with optional x265 / kvazaar HEVC plugins, producing Apple-compatible HEIC stills</PackageDescription>
+    <Authors>tryAGI</Authors>
     <PackageAuthors>tryAGI</PackageAuthors>
     <PackageTags>heif;heic;hevc;libheif;image;codec;encoding;apple</PackageTags>
     <PackageProjectUrl>https://github.com/tryAGI/HeifSharp</PackageProjectUrl>
-    <PackageLicenseExpression>MIT AND LGPL-3.0-only AND GPL-2.0-only</PackageLicenseExpression>
+    <PackageLicenseExpression>MIT AND LGPL-3.0-only AND GPL-2.0-only AND (GPL-3.0-or-later WITH GCC-exception-3.1) AND ZPL-2.1</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/tryAGI/HeifSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -55,6 +56,11 @@
     <Content Include="../../../natives/linux/linux-x64/libheif-plugin-x265.so" Condition="Exists('../../../natives/linux/linux-x64/libheif-plugin-x265.so')">
       <Pack>true</Pack>
       <PackagePath>runtimes/linux-x64/native/libheif-plugin-x265.so</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/linux/linux-x64/libheif-x265.so" Condition="Exists('../../../natives/linux/linux-x64/libheif-x265.so')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/linux-x64/native/libheif-x265.so</PackagePath>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
     <Content Include="../../../natives/linux/linux-x64/libx265.so" Condition="Exists('../../../natives/linux/linux-x64/libx265.so')">
@@ -149,6 +155,11 @@
       <PackagePath>runtimes/win-x64/native/heif.dll</PackagePath>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+    <Content Include="../../../natives/windows/libheif.dll" Condition="Exists('../../../natives/windows/libheif.dll')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win-x64/native/libheif.dll</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
     <Content Include="../../../natives/windows/heif-plugin-x265.dll" Condition="Exists('../../../natives/windows/heif-plugin-x265.dll')">
       <Pack>true</Pack>
       <PackagePath>runtimes/win-x64/native/heif-plugin-x265.dll</PackagePath>
@@ -157,6 +168,21 @@
     <Content Include="../../../natives/windows/x265.dll" Condition="Exists('../../../natives/windows/x265.dll')">
       <Pack>true</Pack>
       <PackagePath>runtimes/win-x64/native/x265.dll</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/windows/libgcc_s_seh-1.dll" Condition="Exists('../../../natives/windows/libgcc_s_seh-1.dll')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win-x64/native/libgcc_s_seh-1.dll</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/windows/libstdc++-6.dll" Condition="Exists('../../../natives/windows/libstdc++-6.dll')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win-x64/native/libstdc++-6.dll</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../../natives/windows/libwinpthread-1.dll" Condition="Exists('../../../natives/windows/libwinpthread-1.dll')">
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win-x64/native/libwinpthread-1.dll</PackagePath>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -172,6 +198,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Link>runtimes/linux-x64/native/libheif-plugin-x265.so</Link>
+    </None>
+    <None Include="../../../natives/linux/linux-x64/libheif-x265.so" Condition="Exists('../../../natives/linux/linux-x64/libheif-x265.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/linux-x64/native/libheif-x265.so</Link>
     </None>
     <None Include="../../../natives/linux/linux-x64/libx265.so" Condition="Exists('../../../natives/linux/linux-x64/libx265.so')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -231,6 +262,11 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Link>runtimes/win-x64/native/heif.dll</Link>
     </None>
+    <None Include="../../../natives/windows/libheif.dll" Condition="Exists('../../../natives/windows/libheif.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/win-x64/native/libheif.dll</Link>
+    </None>
     <None Include="../../../natives/windows/heif-plugin-x265.dll" Condition="Exists('../../../natives/windows/heif-plugin-x265.dll')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -240,6 +276,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Link>runtimes/win-x64/native/x265.dll</Link>
+    </None>
+    <None Include="../../../natives/windows/libgcc_s_seh-1.dll" Condition="Exists('../../../natives/windows/libgcc_s_seh-1.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/win-x64/native/libgcc_s_seh-1.dll</Link>
+    </None>
+    <None Include="../../../natives/windows/libstdc++-6.dll" Condition="Exists('../../../natives/windows/libstdc++-6.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/win-x64/native/libstdc++-6.dll</Link>
+    </None>
+    <None Include="../../../natives/windows/libwinpthread-1.dll" Condition="Exists('../../../natives/windows/libwinpthread-1.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Link>runtimes/win-x64/native/libwinpthread-1.dll</Link>
     </None>
   </ItemGroup>
 

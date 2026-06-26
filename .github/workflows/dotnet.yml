@@ -74,6 +74,14 @@ jobs:
       - name: Run tests
         run: dotnet test src/tests/HeifSharp.Tests/HeifSharp.Tests.csproj --configuration Release --nologo
 
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Run Linux native smoke tests
+        run: scripts/smoke-test-linux-native-assets.sh
+
   release:
     name: Release
     runs-on: ubuntu-latest

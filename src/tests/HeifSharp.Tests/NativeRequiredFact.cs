@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using Xunit;
 
 namespace HeifSharp.Tests;
@@ -9,7 +10,10 @@ namespace HeifSharp.Tests;
 /// </summary>
 public sealed class NativeRequiredFactAttribute : FactAttribute
 {
-    public NativeRequiredFactAttribute()
+    public NativeRequiredFactAttribute(
+        [CallerFilePath] string? sourceFilePath = null,
+        [CallerLineNumber] int sourceLineNumber = -1)
+        : base(sourceFilePath, sourceLineNumber)
     {
         if (!NativeProbe.LibHeifLoadable)
         {
@@ -26,7 +30,10 @@ public sealed class NativeRequiredFactAttribute : FactAttribute
 /// </summary>
 public sealed class HevcEncoderRequiredFactAttribute : FactAttribute
 {
-    public HevcEncoderRequiredFactAttribute()
+    public HevcEncoderRequiredFactAttribute(
+        [CallerFilePath] string? sourceFilePath = null,
+        [CallerLineNumber] int sourceLineNumber = -1)
+        : base(sourceFilePath, sourceLineNumber)
     {
         if (!NativeProbe.LibHeifLoadable)
         {
@@ -44,7 +51,10 @@ public sealed class HevcEncoderRequiredFactAttribute : FactAttribute
 
 public sealed class HevcEncoderRequiredTheoryAttribute : TheoryAttribute
 {
-    public HevcEncoderRequiredTheoryAttribute()
+    public HevcEncoderRequiredTheoryAttribute(
+        [CallerFilePath] string? sourceFilePath = null,
+        [CallerLineNumber] int sourceLineNumber = -1)
+        : base(sourceFilePath, sourceLineNumber)
     {
         if (!NativeProbe.LibHeifLoadable)
         {

@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using FluentAssertions;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace HeifSharp.Tests;
 

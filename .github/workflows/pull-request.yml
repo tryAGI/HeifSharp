@@ -1,0 +1,38 @@
+name: Test
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build
+        run: dotnet build src/libs/HeifSharp/HeifSharp.csproj --configuration Release --nologo
+
+      - name: Run tests
+        run: dotnet test src/tests/HeifSharp.Tests/HeifSharp.Tests.csproj --configuration Release --nologo
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+
+      - name: Run Linux native smoke tests
+        run: scripts/smoke-test-linux-native-assets.sh

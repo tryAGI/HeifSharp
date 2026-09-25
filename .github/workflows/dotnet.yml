@@ -82,6 +82,17 @@ jobs:
       - name: Run Linux native smoke tests
         run: scripts/smoke-test-linux-native-assets.sh
 
+  auto-stable-release:
+    needs: [publish, tests]
+    if: github.ref == 'refs/heads/main'
+    uses: tryAGI/workflows/.github/workflows/auto-stable-release.yml@main
+    with:
+      project-path: src/libs/HeifSharp/HeifSharp.csproj
+      candidate-source: build
+      package-command: pack
+    secrets:
+      nuget-key: ${{ secrets.NUGET_API_KEY || secrets.NUGET_KEY }}
+
   release:
     name: Release
     runs-on: ubuntu-latest

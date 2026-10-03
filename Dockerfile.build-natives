@@ -29,6 +29,8 @@ RUN apt-get update -qq \
  && apt-get install -y -qq --no-install-recommends \
         ca-certificates \
         build-essential \
+        python3 \
+        file \
         cmake \
         curl \
         git \
@@ -46,6 +48,7 @@ WORKDIR /repo
 # ---------------------------------------------------------------------------
 FROM tools AS build
 COPY scripts/ /repo/scripts/
+COPY NATIVE_PROVENANCE.json /repo/NATIVE_PROVENANCE.json
 RUN chmod +x /repo/scripts/build-natives.sh \
  && case "$(uname -m)" in \
         aarch64) RID=linux-arm64 ;; \

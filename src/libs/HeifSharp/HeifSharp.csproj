@@ -295,6 +295,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="../../../natives/attestations/**/*.json" Pack="true" PackagePath="native-attestations/" />
     <None Include="../../../NATIVE_PROVENANCE.json" Pack="true" PackagePath="NATIVE_PROVENANCE.json" />
     <None Include="../../../NATIVE_PROVENANCE.md" Pack="true" PackagePath="NATIVE_PROVENANCE.md" />
   </ItemGroup>

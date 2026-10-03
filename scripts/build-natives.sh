@@ -101,6 +101,8 @@ echo "==> Building HeifSharp natives for $RID"
 echo "    libheif=$LIBHEIF_VERSION   x265=git:$X265_GIT_REF (enabled=$WITH_X265)   kvazaar=$KVAZAAR_VERSION (enabled=$WITH_KVAZAAR)"
 echo "    work dir: $WORK_DIR"
 mkdir -p "$WORK_DIR" "$PREFIX"
+ATTESTATION_START="$WORK_DIR/attestation-start"
+touch "$ATTESTATION_START"
 
 # --- helpers ---
 fetch() {
@@ -146,7 +148,7 @@ if [[ "$WITH_X265" == "ON" ]]; then
   fi
   git config --global --add safe.directory "$X265_REPO" >/dev/null 2>&1 || true
   (cd "$X265_REPO" && git fetch --depth 1 origin "$X265_GIT_REF" >/dev/null 2>&1 || true)
-  (cd "$X265_REPO" && git checkout "$X265_GIT_REF" >/dev/null 2>&1 || true)
+  (cd "$X265_REPO" && git checkout "$X265_GIT_REF" >/dev/null 2>&1)
   X265_HEAD_SHA=$(cd "$X265_REPO" && git rev-parse HEAD)
   echo "    x265 HEAD = $X265_HEAD_SHA"
   X265_SRC="$X265_REPO/source"
@@ -307,7 +309,7 @@ case "$RID" in
     fi
     # Some libheif builds emit a versioned soname for the plugin link (libheif.1.dylib).
     # Provide an alias so any unfixed @rpath/libheif.1.dylib still resolves.
-    if [[ -f "$OUT_DIR/libheif.dylib" && ! -f "$OUT_DIR/libheif.1.dylib" ]]; then
+    if [[ -f "$OUT_DIR/libheif.dylib" ]]; then
       cp -L "$OUT_DIR/libheif.dylib" "$OUT_DIR/libheif.1.dylib"
       install_name_tool -id "@rpath/libheif.1.dylib" "$OUT_DIR/libheif.1.dylib" || true
     fi
@@ -318,7 +320,7 @@ case "$RID" in
     # libheif's directory scan looks for files matching "libheif-*.so" (the upstream
     # install convention is the same on macOS, even though the actual file is Mach-O).
     # Provide an alias under that exact name so heif_load_plugins(dir) picks it up.
-    if [[ -f "$OUT_DIR/libheif-plugin-x265.dylib" && ! -f "$OUT_DIR/libheif-x265.so" ]]; then
+    if [[ -f "$OUT_DIR/libheif-plugin-x265.dylib" ]]; then
       cp -L "$OUT_DIR/libheif-plugin-x265.dylib" "$OUT_DIR/libheif-x265.so"
     fi
     # Self-codesign so macOS will load the dylibs.
@@ -436,3 +438,25 @@ esac
 
 echo "==> Done. Outputs in $OUT_DIR"
 ls -lh "$OUT_DIR"
+
+# Record only outputs written by this successful invocation. Do not rebaseline
+# historical binaries or claim that a local receipt is independently verified.
+ATTESTATION_ARGS=(
+  --root "$ROOT_DIR" --rid "$RID" --kind build --started "$ATTESTATION_START"
+  --source "$LH_TGZ" --source "$LH_SRC"
+  --source "$SCRIPT_DIR/build-natives.sh"
+  --tool "${CC:-cc}" --tool "${CXX:-c++}" --tool cmake
+  --configuration "$LH_BUILD/CMakeCache.txt"
+  --parameter "libheif=$LIBHEIF_VERSION" --parameter "WITH_X265=$WITH_X265"
+  --parameter "WITH_KVAZAAR=$WITH_KVAZAAR" --parameter "JOBS=$JOBS"
+  --command "scripts/build-natives.sh $RID"
+)
+if [[ "$WITH_X265" == "ON" ]]; then
+  ATTESTATION_ARGS+=(--source "$X265_REPO" --configuration "$X265_BUILD/CMakeCache.txt"
+    --parameter "x265=$X265_HEAD_SHA")
+fi
+if [[ "$WITH_KVAZAAR" == "ON" ]]; then
+  ATTESTATION_ARGS+=(--source "$KV_TGZ" --source "$KV_SRC"
+    --configuration "$KV_BUILD/CMakeCache.txt" --parameter "kvazaar=$KVAZAAR_VERSION")
+fi
+python3 "$SCRIPT_DIR/native-build-attestation.py" "${ATTESTATION_ARGS[@]}"

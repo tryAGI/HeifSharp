@@ -331,7 +331,7 @@
   "inputs": [
     {
       "path": "Dockerfile.build-natives",
-      "sha256": "6c0548326332085ae683a1045a8b54bf23b4fdbcfdb292d2144bc5c7fb4d7693"
+      "sha256": "e01c9ac76e10e6b89defd057a8552460222dd3aad077350e79dcc2f77ef08d1f"
     },
     {
       "path": "THIRD-PARTY-NOTICES.md",
@@ -343,11 +343,16 @@
     },
     {
       "path": "scripts/build-natives.sh",
-      "sha256": "654528ccebb4df72dea6b85474f24549317ddec9ae94af2344afcff464997139"
+      "sha256": "b2376d35c1b14799ba0d51e2a0368decdc13c9eab0b215ee0505706795582e70"
     },
     {
       "path": "src/libs/HeifSharp/HeifSharp.csproj",
-      "sha256": "ee45a472fd586bff682a4c2919491c82e1c7eeccdf3e423984836af3d502f463"
+      "sha256": "8299d410e1fe614db05832293aec64edbb826bf4ad88677ef89b4a85598e92b6"
+    },
+    {
+      "path": "scripts/native-build-attestation.py",
+      "sha256": "54ee2d655c95483a44ee6e4587d211afb3c1f69cbd53f1993bf130446a9c0dd0"
     }
-  ]
+  ],
+  "input_snapshot_note": "Build/refresh instrumentation inputs updated on 2026-10-03. Historical binary hashes and unknown build attestations are unchanged; these scripts are not asserted to be their original build inputs."
 }

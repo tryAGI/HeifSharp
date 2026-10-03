@@ -294,4 +294,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="../../../NATIVE_PROVENANCE.json" Pack="true" PackagePath="NATIVE_PROVENANCE.json" />
+    <None Include="../../../NATIVE_PROVENANCE.md" Pack="true" PackagePath="NATIVE_PROVENANCE.md" />
+  </ItemGroup>
+
 </Project>

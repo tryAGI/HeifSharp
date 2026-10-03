@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-03",
+  "baseline_repository_commit": "c3740da88d4fcaf3789782440e6d615fa5874e9e",
+  "scope": "Recorded binary/source baseline, not a reproducible-build or security attestation.",
+  "components": [
+    {
+      "id": "libheif",
+      "version": "1.21.2",
+      "source": {
+        "url": "https://github.com/strukturag/libheif/releases/download/v1.21.2/libheif-1.21.2.tar.gz",
+        "sha256": "75f530b7154bc93e7ecf846edfc0416bf5f490612de8c45983c36385aa742b42",
+        "verification": "matches retained win-x64 source archive during review"
+      },
+      "license": "LGPL-3.0"
+    },
+    {
+      "id": "x265",
+      "source_repository": "https://bitbucket.org/multicoreware/x265_git.git",
+      "revision": "b81f650e21e8aacbe6a9ad04ce14aefc05b932c0",
+      "revision_evidence": "matches retained win-x64 x265 source checkout; scripts/VERSIONS.md records Linux x64 too",
+      "license": "GPL-2.0",
+      "source_modifications": "build-natives.sh applies CMake compatibility patches; script hash is recorded"
+    },
+    {
+      "id": "mingw-runtime",
+      "source_packages": [
+        "gcc-mingw-w64-x86-64-posix",
+        "g++-mingw-w64-x86-64-posix"
+      ],
+      "distribution": "Debian bookworm",
+      "exact_package_versions": null,
+      "gap": "Historical package versions and download checksums were not recorded."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "natives/linux/linux-arm64/libheif-plugin-x265.so",
+      "sha256": "95dd33047bbb4c0ac21f37a8d043ff7876b72b90873334a832318e88cdb0ba57",
+      "size": 67976,
+      "package_paths": [
+        "runtimes/linux-arm64/native/libheif-plugin-x265.so"
+      ],
+      "components": [
+        "libheif",
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/linux/linux-arm64/libheif-x265.so",
+      "sha256": "95dd33047bbb4c0ac21f37a8d043ff7876b72b90873334a832318e88cdb0ba57",
+      "size": 67976,
+      "package_paths": [
+        "runtimes/linux-arm64/native/libheif-x265.so"
+      ],
+      "components": [
+        "libheif",
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/linux/linux-arm64/libheif.so",
+      "sha256": "568a545aaf1790de50e3a7612e3afb774e979ff28260246c41a0470142a29ef1",
+      "size": 1773376,
+      "package_paths": [
+        "runtimes/linux-arm64/native/libheif.so"
+      ],
+      "components": [
+        "libheif"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/linux/linux-arm64/libx265.so",
+      "sha256": "bf1d03a7674d8b5362334c78373edc19c5b129e6633718a1a69c68f8e02b7674",
+      "size": 3480248,
+      "package_paths": [
+        "runtimes/linux-arm64/native/libx265.so"
+      ],
+      "components": [
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/linux/linux-x64/libheif-plugin-x265.so",
+      "sha256": "853f9bd338fe352b1ae0b28c6d4c86bb228ebad72cd538293b5bb1a6727169be",
+      "size": 47544,
+      "package_paths": [
+        "runtimes/linux-x64/native/libheif-plugin-x265.so"
+      ],
+      "components": [
+        "libheif",
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/linux/linux-x64/libheif-x265.so",
+      "sha256": "853f9bd338fe352b1ae0b28c6d4c86bb228ebad72cd538293b5bb1a6727169be",
+      "size": 47544,
+      "package_paths": [
+        "runtimes/linux-x64/native/libheif-x265.so"
+      ],
+      "components": [
+        "libheif",
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/linux/linux-x64/libheif.so",
+      "sha256": "47e28b857c53c01794111a1a06f4275dd2f4a16e96ffc1c2e745ef78e4e0591b",
+      "size": 1892168,
+      "package_paths": [
+        "runtimes/linux-x64/native/libheif.so"
+      ],
+      "components": [
+        "libheif"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/linux/linux-x64/libx265.so",
+      "sha256": "f9054c2ab636e4b101de4cfaa046e5e2f09fe1ac16ab40eb42c31769121f3914",
+      "size": 5978968,
+      "package_paths": [
+        "runtimes/linux-x64/native/libx265.so"
+      ],
+      "components": [
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/macos/libheif-plugin-x265.dylib",
+      "sha256": "42fbacbc41df22a56f6ccc90ef75d999a6b7bf1694a4f90be1e7c1658531d5bd",
+      "size": 4028432,
+      "package_paths": [
+        "runtimes/osx-arm64/native/libheif-plugin-x265.dylib",
+        "runtimes/osx-x64/native/libheif-plugin-x265.dylib"
+      ],
+      "components": [
+        "libheif",
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/macos/libheif-x265.so",
+      "sha256": "cd5dd6e32611279b04ee0def3896683b03b632d95653c114930dcb481ae56403",
+      "size": 4028432,
+      "package_paths": [
+        "runtimes/osx-arm64/native/libheif-x265.so",
+        "runtimes/osx-x64/native/libheif-x265.so"
+      ],
+      "components": [
+        "libheif",
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/macos/libheif.1.dylib",
+      "sha256": "c9edc52faf254f4b6f7ff24d53117100ecced0a452481a16b1274490741529e8",
+      "size": 1666272,
+      "package_paths": [
+        "runtimes/osx-arm64/native/libheif.1.dylib",
+        "runtimes/osx-x64/native/libheif.1.dylib"
+      ],
+      "components": [
+        "libheif"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/macos/libheif.dylib",
+      "sha256": "34564e136b5c1fd6c07c3707c0a66d6d81485ed16f2b08c4b8e09e7cbbed4501",
+      "size": 1666320,
+      "package_paths": [
+        "runtimes/osx-arm64/native/libheif.dylib",
+        "runtimes/osx-x64/native/libheif.dylib"
+      ],
+      "components": [
+        "libheif"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/macos/libx265.dylib",
+      "sha256": "6d3bb9b37f3fedc73973c4f2b06fa903bd7b53c190495c9e6e5677ed2375e160",
+      "size": 4023936,
+      "package_paths": [
+        "runtimes/osx-arm64/native/libx265.dylib",
+        "runtimes/osx-x64/native/libx265.dylib"
+      ],
+      "components": [
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/windows/heif-plugin-x265.dll",
+      "sha256": "178af05cd6a3935e252b964f1669da044321e1e25adf5a4df2f21c194e69702e",
+      "size": 7651351,
+      "package_paths": [
+        "runtimes/win-x64/native/heif-plugin-x265.dll"
+      ],
+      "components": [
+        "libheif",
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/windows/heif.dll",
+      "sha256": "4c55639db324f962ed47f4cab2181f17204c2cb0efd98827bcafc4b845a4d015",
+      "size": 3023419,
+      "package_paths": [
+        "runtimes/win-x64/native/heif.dll"
+      ],
+      "components": [
+        "libheif"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/windows/libgcc_s_seh-1.dll",
+      "sha256": "82e11269177d465bc8792482b6c61beb7e3d970e2d0450832299b30a8aabe1c8",
+      "size": 666071,
+      "package_paths": [
+        "runtimes/win-x64/native/libgcc_s_seh-1.dll"
+      ],
+      "components": [
+        "mingw-runtime"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/windows/libheif.dll",
+      "sha256": "4c55639db324f962ed47f4cab2181f17204c2cb0efd98827bcafc4b845a4d015",
+      "size": 3023419,
+      "package_paths": [
+        "runtimes/win-x64/native/libheif.dll"
+      ],
+      "components": [
+        "libheif"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/windows/libstdc++-6.dll",
+      "sha256": "2aef7c9debac9946d416a67387cf0d9f1d8c65106ed255abe3e75539f18a9177",
+      "size": 23729404,
+      "package_paths": [
+        "runtimes/win-x64/native/libstdc++-6.dll"
+      ],
+      "components": [
+        "mingw-runtime"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/windows/libwinpthread-1.dll",
+      "sha256": "71abe034d8408b8ccd245853fee3bb1d7aec9970c0065e60430d77f013b25329",
+      "size": 319336,
+      "package_paths": [
+        "runtimes/win-x64/native/libwinpthread-1.dll"
+      ],
+      "components": [
+        "mingw-runtime"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    },
+    {
+      "path": "natives/windows/x265.dll",
+      "sha256": "260a83bea17e799bfdf1fc7d9d0b3ed35281cda4e99a00948dbc33f4043b7911",
+      "size": 7639709,
+      "package_paths": [
+        "runtimes/win-x64/native/x265.dll"
+      ],
+      "components": [
+        "x265"
+      ],
+      "source_evidence": "declared-source-only",
+      "build_attestation": "unknown",
+      "build_attestation_gap": "No original per-artifact build attestation linking all compiler/build inputs to this binary was retained."
+    }
+  ],
+  "source_trees": [],
+  "inputs": [
+    {
+      "path": "Dockerfile.build-natives",
+      "sha256": "6c0548326332085ae683a1045a8b54bf23b4fdbcfdb292d2144bc5c7fb4d7693"
+    },
+    {
+      "path": "THIRD-PARTY-NOTICES.md",
+      "sha256": "8c83eecab1ca0eaed489e4b353b0afa3e0441379a223e3c6e0a31d2473deaf80"
+    },
+    {
+      "path": "scripts/VERSIONS.md",
+      "sha256": "2633226a3692bfa8d5302d711d94cf6bb2cde3a32332bf3cdc897a85b852b34d"
+    },
+    {
+      "path": "scripts/build-natives.sh",
+      "sha256": "654528ccebb4df72dea6b85474f24549317ddec9ae94af2344afcff464997139"
+    },
+    {
+      "path": "src/libs/HeifSharp/HeifSharp.csproj",
+      "sha256": "ee45a472fd586bff682a4c2919491c82e1c7eeccdf3e423984836af3d502f463"
+    }
+  ]
+}

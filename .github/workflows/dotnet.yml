@@ -14,12 +14,14 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       DOTNET_NOLOGO: true
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
       DOTNET_CLI_TELEMETRY_OPTOUT: true
-      NUGET_KEY: ${{ secrets.NUGET_API_KEY || secrets.NUGET_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -42,14 +44,17 @@ jobs:
           path: artifacts/*.nupkg
           if-no-files-found: error
 
+      - name: NuGet login (trusted publishing)
+        id: nuget_login
+        uses: NuGet/login@v1
+        with:
+          user: havendv
+
       - name: Publish to NuGet
         shell: bash
+        env:
+          NUGET_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
         run: |
-          if [ -z "$NUGET_KEY" ]; then
-            echo "No NuGet key configured. Skipping publish."
-            exit 0
-          fi
-
           for package in artifacts/*.nupkg; do
             dotnet nuget push "$package" \
               --skip-duplicate \
@@ -90,8 +95,6 @@ jobs:
       project-path: src/libs/HeifSharp/HeifSharp.csproj
       candidate-source: build
       package-command: pack
-    secrets:
-      nuget-key: ${{ secrets.NUGET_API_KEY || secrets.NUGET_KEY }}
 
   release:
     name: Release

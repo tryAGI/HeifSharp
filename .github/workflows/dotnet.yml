@@ -53,13 +53,13 @@ jobs:
       - name: Publish to NuGet
         shell: bash
         env:
-          NUGET_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.nuget_login.outputs.NUGET_API_KEY }}
         run: |
           for package in artifacts/*.nupkg; do
             dotnet nuget push "$package" \
               --skip-duplicate \
               --source https://api.nuget.org/v3/index.json \
-              --api-key "$NUGET_KEY"
+              --api-key "$NUGET_API_KEY"
           done
 
   tests:
